@@ -47,12 +47,12 @@ export class UsersService {
     return this.usersRepository.save(createUserDto);
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() : Promise<UserEntity[]> {
+    return await this.usersRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number): Promise<UserEntity | null>{
+    return await this.usersRepository.findOneBy({id})
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
