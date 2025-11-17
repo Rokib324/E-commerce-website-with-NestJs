@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,6 +6,10 @@ import { UserSignUpDto } from './dto/user-signup.dto';
 import { UserEntity } from './entities/user.entity';
 import { UserSignInDto } from './dto/user-signin.dto';
 import { CurrentUser } from './utility/decorstors/current-user.decorator';
+import { AuthenticationGuard } from './utility/guards/authentication.guard';
+import { AuthorizeRoles } from './utility/decorstors/authorize-roles.decorators';
+import { UserRoles } from './utility/common/user-roles.enum';
+import { AuthorizeGuard } from './utility/guards/authorization.guards';
 
 @Controller('users')
 export class UsersController {
@@ -32,6 +36,9 @@ export class UsersController {
     return "User created successfully";
   }
 
+
+  @AuthorizeRoles(UserRoles.ADMIN)
+  @UseGuards(AuthenticationGuard, AuthorizeGuard)
   @Get('all')
   async findAll(): Promise<UserEntity[]> {
     return await this.usersService.findAll();
@@ -56,8 +63,9 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
+  @UseGuards(AuthenticationGuard)
   @Get('me')
   getCurrentUser(@CurrentUser() currentUser: UserEntity) {
-    return {user: currentUser};
+    return currentUser ? currentUser : null;
   }
 }

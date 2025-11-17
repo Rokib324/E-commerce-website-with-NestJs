@@ -27,11 +27,13 @@ export class CurrentUserMiddleware implements NestMiddleware {
         try {
             const token = authHeader.split(' ')[1];
             if (!token) {
+                req.currentUser = null;
                 next();
                 return;
             }
             const secret = process.env.ACCESS_TOKEN_SECRET_KEY;
             if (!secret) {
+                req.currentUser = null;
                 next();
                 return;
             }
@@ -42,6 +44,7 @@ export class CurrentUserMiddleware implements NestMiddleware {
             next();
         } catch (error) {
             // Invalid or malformed token - continue without user
+            req.currentUser = null;
             next();
         }
     }
